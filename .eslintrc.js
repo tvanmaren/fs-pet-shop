@@ -1,4 +1,7 @@
 'use strict';
 module.exports = {
-    "extends": "eslint:recommended"
+  extends: [
+    'ryansobol/es6',
+    'ryansobol/node'
+  ]
 };
