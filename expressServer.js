@@ -4,6 +4,8 @@ const express = require('express');
 const app = express();
 const port = 8000;
 
+// const bodyhandler=require('body-handler');
+
 const path = require('path');
 const fs = require('fs');
 const database = './pets.json';
@@ -57,3 +59,5 @@ app.delete('/pets:id', (req, res, next) => {
 app.listen(port, () => {
     console.log(`Now listening @ port:${port}`);
 });
+
+module.exports = app;

@@ -2,7 +2,7 @@
   "name": "fs-pet-store",
   "version": "0.1.0",
   "description": "A small server app to demonstrate CRUD over an HTTP API",
-  "main": "restfulExpressServer.js",
+  "main": "expressServer.js",
   "scripts": {
     "lint": "eslint",
     "start": "nodemon",
