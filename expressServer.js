@@ -25,28 +25,28 @@ app.get('/pets', (req, res, next) => {
 });
 
 app.get('/pets/:id', (req, res, next) => {
-    let index = +req.params.id;
+    const index = +req.params.id;
+
     fs.readFile(database, 'utf8', (err, data) => {
         if (err) {
             console.error(err.stack);
             return res.sendStatus(500);
         }
+
         let dataStore = JSON.parse(data);
-        console.log(dataStore.length);
         if (isNaN(index) || index < 0 || index >= dataStore.length) {
             // res.set('Content-Type', 'text/plain');
             res.sendStatus(404);
         }
-
         res.send(dataStore[index]);
     });
 });
 
 app.post('/pets', (req, res, next) => {
-    let index = +req.params.id;
     const newPet = req.body;
 
-    if (!newPet || !(newPet.age && typeof newPet.age==='number') || !(newPet.kind && typeof newPet.kind==='string') || !(newPet.name && typeof newPet.name==='string')) {
+    newPet.age = Number.parseInt(newPet.age); //convert age to integer
+    if ((!newPet) || !(newPet.age && typeof newPet.age === 'number') || !(newPet.kind && typeof newPet.kind === 'string') || !(newPet.name && typeof newPet.name === 'string')) {
         return res.sendStatus(400);
     }
 
@@ -66,8 +66,35 @@ app.post('/pets', (req, res, next) => {
     });
 });
 
-app.put('/pets:id', (req, res, next) => {
+app.put('/pets/:id', (req, res, next) => {
+    const newPet = req.body;
+    const index = +req.params.id;
 
+    newPet.age = Number.parseInt(newPet.age); //convert age to integer
+    if ((!newPet) || !(newPet.age && typeof newPet.age === 'number') || !(newPet.kind && typeof newPet.kind === 'string') || !(newPet.name && typeof newPet.name === 'string')) {
+        return res.sendStatus(400);
+    }
+
+    fs.readFile(database, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err.stack);
+            return res.sendStatus(500);
+        }
+        let dataStore = JSON.parse(data);
+
+        if (index >= 0 && index < dataStore.length) {
+            dataStore[index] = newPet;
+            fs.writeFile(database, JSON.stringify(dataStore), (err) => {
+                if (err) {
+                    return res.sendStatus(500);
+                }
+                return res.status(200).send(newPet);
+            });
+        } else {
+            return res.sendStatus(500);
+        }
+
+    });
 });
 
 app.delete('/pets:id', (req, res, next) => {
