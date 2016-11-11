@@ -10,8 +10,27 @@ const port = 8000;
 const fs = require('fs');
 const database = './pets.json';
 
+function denyAuth(res) {
+  res.set('WWW-Authenticate',`Basic realm="Required"`);
+  return res.sendStatus(401);
+}
+
 
 app.use(express.static('public'));
+
+app.use((req, res, next) => {
+  let loginBuffer = req.headers.authorization;
+  if (loginBuffer!==undefined) {
+    loginBuffer=loginBuffer.split(' ')[1];
+    let auth = new Buffer(loginBuffer, 'base64').toString('ascii');
+    let [user, login] = auth.split(':');
+    if (user !== 'admin' || login !== 'meowmix') {
+        denyAuth(res);
+    } else {
+        next();
+    }} else {
+    denyAuth(res);
+}});
 
 app.get('/pets', (req, res, next) => {
     fs.readFile(database, 'utf8', (err, data) => {
@@ -117,13 +136,11 @@ app.patch('/pets/:id', (req, res, next) => {
     const index = +req.params.id;
     const newPetPiece = req.body;
 
-    console.log(newPetPiece.age);
     if (newPetPiece.age) {
         newPetPiece.age = Number.parseInt(newPetPiece.age); //convert age to integer
     }
-    console.log(newPetPiece.age);
 
-    if (!newPetPiece || newPetPiece.age!==undefined && isNaN(newPetPiece.age)) {
+    if (!newPetPiece || newPetPiece.age !== undefined && isNaN(newPetPiece.age)) {
         return res.sendStatus(400);
     }
 
