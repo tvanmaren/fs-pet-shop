@@ -113,6 +113,36 @@ app.delete('/pets/:id', (req, res, next) => {
     });
 });
 
+app.patch('/pets/:id', (req, res, next) => {
+    const index = +req.params.id;
+    const newPetPiece = req.body;
+
+    console.log(newPetPiece.age);
+    if (newPetPiece.age) {
+        newPetPiece.age = Number.parseInt(newPetPiece.age); //convert age to integer
+    }
+    console.log(newPetPiece.age);
+
+    if (!newPetPiece || newPetPiece.age!==undefined && isNaN(newPetPiece.age)) {
+        return res.sendStatus(400);
+    }
+
+    fs.readFile(database, 'utf8', (err, data) => {
+        let dataStore = JSON.parse(data);
+        if (index >= 0 && index < dataStore.length) {
+            let currentPet = dataStore[index];
+            for (let key in newPetPiece) {
+                currentPet[key] = newPetPiece[key];
+            }
+            dataStore[index] = currentPet;
+            fs.writeFile(database, JSON.stringify(dataStore), (err) => {
+                return res.status(200).send(currentPet);
+            });
+        }
+    });
+
+});
+
 app.use((req, res, next) => {
     return res.sendStatus(404);
 });
